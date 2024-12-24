@@ -4,6 +4,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./config/db";
 import bookRoutes from "./routes/bookRoutes";
+import path from "path";
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 connectDB();
 
 app.use("/api", bookRoutes);
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
