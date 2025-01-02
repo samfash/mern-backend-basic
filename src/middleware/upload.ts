@@ -10,17 +10,24 @@ const storage = multer.diskStorage({
     },
 });
 
-const fileFilter = (req: Express.Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
-    const allowedExtensions = /jpeg|jpg|png/;
-    const extname = allowedExtensions.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = allowedExtensions.test(file.mimetype);
+const fileFilter = (req: any, file: any, cb: any) => {
+  //   const allowedExtensions = /jpeg|jpg|png/;
+  //   const extname = allowedExtensions.test(path.extname(file.originalname).toLowerCase());
+  //   const mimetype = allowedExtensions.test(file.mimetype);
   
-    if (extname && mimetype) {
-      cb(null, true);
-    } else {
-      cb(new Error("Only image files are allowed!"));
-    }
-  };
+  //   if (extname && mimetype) {
+  //     cb(null, true);
+  //   } else {
+  //     cb(new Error("Only image files are allowed!"));
+  //   }
+  // };
+
+  const allowedMimeTypes = ["image/jpeg", "image/png", "image/jpg"];
+  if (!allowedMimeTypes.includes(file.mimetype)) {
+    return cb(new Error("Only image files are allowed!"), false);
+  }
+  cb(null, true);
+};
   
   // Initialize multer
   const upload = multer({

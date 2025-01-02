@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import Book from "../models/bookModel";
+import mongoose from "mongoose";
 
 
 export const createBook = async (req: Request, res: Response): Promise<void> => {
@@ -22,16 +23,16 @@ export const updateBookCover = async (req: Request, res: Response): Promise<void
     try {
       const { id } = req.params;
   
-      // Check if a file was uploaded
-      if (!req.file) {
-        res.status(400).json({ error: "No file uploaded" });
-        return;
-      }
-  
       // Find the book by ID
       const book = await Book.findById(id);
       if (!book) {
         res.status(404).json({ error: "Book not found" });
+        return;
+      }
+
+       // Check if a file was uploaded
+       if (!req.file) {
+        res.status(400).json({ error: "No file uploaded" });
         return;
       }
   
@@ -40,8 +41,12 @@ export const updateBookCover = async (req: Request, res: Response): Promise<void
       await book.save();
   
       res.status(200).json({ success: true, data: book });
-    } catch (error) {
-      res.status(500).json({ error: "Server error" });
+    } catch (error: any) {
+      if (error.message === "Only image files are allowed!") {
+        res.status(500).json({ error: "Only image files are allowed!" });
+      } else {
+        res.status(500).json({ error: "Server error" });
+      }
     }
   };
 
@@ -60,11 +65,16 @@ export const getAllBooks = async (req: Request, res: Response): Promise<void> =>
 export const getBookById = async (req: Request, res: Response): Promise<void> => {
     try {
       const { id } = req.params;
+
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        res.status(400).json({ error: "id not valid" }); // Return 400 for invalid IDs
+        return;
+      }
   
       // Find book by ID
       const book = await Book.findById(id);
   
-      // Handle case where book is not found
+      // Handle case where book is not existent
       if (!book) {
         res.status(404).json({ error: "Book not found" });
         return;
@@ -83,6 +93,11 @@ export const updateBook = async (req: Request, res: Response): Promise<void> => 
     try {
       const { id } = req.params;
       const { title, author, publishedDate, ISBN } = req.body;
+
+      if (!title || !author || !publishedDate || !ISBN) {
+        res.status(400).json({ error: "Validation failed" });
+        return;
+     }
   
       // Find the book by ID and update
       const updatedBook = await Book.findByIdAndUpdate(

@@ -48,6 +48,10 @@ npm run dev
 ```bash
 npm run build
 ```
+- **for Testing**
+```bash
+npm test
+```
 ## **Available EndPoints**
 ### **Enpoints for Create Book (POST /api/books)
 - **URL**: /api/books
